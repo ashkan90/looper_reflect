@@ -6,25 +6,20 @@ import (
 
 type sliceMapf func(interface{}, interface{}) interface{}
 type mapMapf func(interface{}, interface{}) interface{}
+type filterf func(interface{}) bool
 
 type I struct {
 	IIT
-	Data interface{}
-	DataType reflect.Type
+	Data      interface{}
+	DataType  reflect.Type
 	iterable_ bool
 }
 
 type IIT interface {
 	Slice(sliceMapf) interface{}
 	Map(mapMapf) interface{}
-}
-
-func NewIterator(d interface{}) IIT {
-	return &I{
-		Data: d,
-		DataType: reflect.TypeOf(d),
-		iterable_: false,
-	}
+	Find(filterf) interface{}
+	Filter(filterf) interface{}
 }
 
 func (i I) iterable() bool {
@@ -52,10 +47,9 @@ func (i I) iterateMap(fn mapMapf) interface{} {
 
 		out = reflect.MakeMap(onIterating.Type())
 
-
 		outGoing = make(map[interface{}]interface{}, onIterating.Len())
 		for iter.Next() {
-			if iter.Value().Kind() == reflect.Slice || iter.Value().Kind() == reflect.Array  {
+			if iter.Value().Kind() == reflect.Slice || iter.Value().Kind() == reflect.Array {
 
 				out.SetMapIndex(iter.Key(), iter.Value())
 				outGoing[iter.Key().Interface()] = fn(iter.Key().Interface(), iter.Value().Interface())
@@ -71,19 +65,36 @@ func (i I) iterateSlice(fn sliceMapf) interface{} {
 		onIterating := reflect.ValueOf(i.Data)
 
 		out = make([]interface{}, onIterating.Len())
-		for n := 0; n < onIterating.Len() ; n++ {
+		for n := 0; n < onIterating.Len(); n++ {
 			out[n] = fn(n, onIterating.Index(n).Interface())
 		}
 	}
 
 	return out
 }
+func (i I) iterateFilter(fn filterf) interface{} {
+	var out []interface{}
+	if i.DataType.Kind() == reflect.Slice || i.DataType.Kind() == reflect.Array {
+		onIterating := reflect.ValueOf(i.Data)
+		out = make([]interface{}, 0, onIterating.Len())
 
-func (i I) Slice(fn sliceMapf) interface{} {
-	return i.iterator().iterateSlice(fn)
+		for n := 0; n < onIterating.Len(); n++ {
+			current := onIterating.Index(n).Interface()
+			if fn(current) {
+				out = append(out, current)
+			}
+		}
+	}
+
+	return out
 }
-func (i I) Map(fn mapMapf) interface{} {
-	return i.iterator().iterateMap(fn)
+func (i I) iterateFind(fn filterf) interface{} {
+	data := i.iterateFilter(fn)
+	ref := reflect.ValueOf(data)
+	if ref.Len() == 0 {
+		return ""
+	}
+	return ref.Index(0).Interface()
 }
 
 //func (i I) mustBe(t interface{}) {

@@ -49,10 +49,10 @@ JS-like loops in golang. There's no data type restriction just use what you want
 
 
 ## Features~
-* [] Filter
+* [x] Filter
 * [] Every
 * [] Fill
-* [] Find
+* [x] Find
 * [] Join
 * [] Keys
 * [] Reduce

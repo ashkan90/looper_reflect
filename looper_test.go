@@ -21,8 +21,7 @@ func TestSlice(t *testing.T) {
 
 }
 
-
-func TestMap (t *testing.T) {
+func TestMap(t *testing.T) {
 	dump := map[string][]string{
 		"t1": {"v1", "v2", "v3"},
 		"t2": {"v1", "v2", "v3"},
@@ -49,4 +48,34 @@ func TestMap (t *testing.T) {
 
 	fmt.Println(data)
 
+}
+
+func TestFilter(t *testing.T) {
+	var dump []string
+	dump = []string{
+		"v1", "v2", "v3",
+	}
+
+	iter := NewIterator(dump)
+
+	data := iter.Filter(func(v interface{}) bool {
+		return len(v.(string)) == 2
+	})
+
+	fmt.Println(data)
+}
+
+func TestFind(t *testing.T) {
+	var dump []string
+	dump = []string{
+		"v1", "v2", "v3",
+	}
+
+	iter := NewIterator(dump)
+
+	data := iter.Find(func(v interface{}) bool {
+		return v.(string) == "v1"
+	})
+
+	fmt.Println(data)
 }
