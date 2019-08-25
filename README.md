@@ -46,3 +46,15 @@ JS-like loops in golang. There's no data type restriction just use what you want
 	})
 
 ```
+
+
+## Features~
+* [] Filter
+* [] Every
+* [] Fill
+* [] Find
+* [] Join
+* [] Keys
+* [] Reduce
+* [] Reverse
+* [] Sort
